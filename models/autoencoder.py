@@ -782,6 +782,9 @@ class localDecoder(nn.Module):
             U = torch.nn.functional.one_hot(final_map, num_classes=L).to(torch.float32)
         x = U @ z_bar
 
+        print('x shape after unmerging: ', x.shape)
+        print('key_padding_mask shape after unmerging: ', None if key_padding_mask is None else key_padding_mask.shape)
+
         for block in self.blocks:
             x = block(x, key_padding_mask=key_padding_mask)
         x = self.final_ln(x)
