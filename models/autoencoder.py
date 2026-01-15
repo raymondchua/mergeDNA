@@ -157,14 +157,9 @@ class TransformerBlockLocalEncode(nn.Module):
                 key_padding_mask=key_padding_mask,
                 attn_mask=attn_mask,
             )
-            # print('attn_out shape: ', attn_out.shape)
-            # print('k_merge shape: ', k_merge.shape)
-            print('attn_out: ', attn_out)
-            print('k_merge: ', k_merge)
             merge_fn, info = bipartite_soft_matching(
                 k_merge, r=self.r, protected=self.protected
             )
-            # print('info: ', info)
             x, token_sizes = merge_with_sizes(x + attn_out, token_sizes, merge_fn)
 
             key_padding_mask = merge_key_padding_mask(key_padding_mask, merge_fn)
@@ -239,7 +234,6 @@ class localEncoder(nn.Module):
 
         num_tokens_merged = 0
         merge_maps = []  # store (old_to_new, L_old, L_new) per merge step
-        # print("x len before block:", x.shape[1])
         for i, block in enumerate(self.blocks):
             x, token_sizes, key_padding_mask, info = block(
                 x,
@@ -248,25 +242,13 @@ class localEncoder(nn.Module):
                 return_info=True,
             )
 
-            print('local encoder forward block ', i)
-            print('x shape after block: ',  x.shape)
-            print('token_sizes shape after block: ',  token_sizes.shape)
-
             if info is not None:
                 unm_idx, src_idx, dst_idx, L_old = info
-                print('umn_idx shape: ', unm_idx.shape)
-                print('src_idx shape: ', src_idx.shape)
-                print('dst_idx shape: ', dst_idx.shape)
-                print('L_old: ', L_old)
                 old_to_new = build_old_to_new(
                     L_old, unm_idx, src_idx, dst_idx
                 )  # [B, L_old]
                 merge_maps.append(old_to_new)
                 num_tokens_merged += src_idx.shape[1]
-
-                print('num_tokens_merged so far: ', num_tokens_merged)
-
-            # print("x len after block :", x.shape[1])  # if you have it
         x = self.ln(x)
 
         if self.token_merging:
@@ -290,8 +272,8 @@ def compose_old_to_new(maps, L: int):
     )
 
     for old_to_new in maps:
-        print('old_to_new shape: ', old_to_new.shape)
-        print('composed shape before gather: ', composed.shape)
+        # print('old_to_new shape: ', old_to_new.shape)
+        # print('composed shape before gather: ', composed.shape)
         # old_to_new maps positions of "current old length" -> "current new length"
         composed = old_to_new.gather(1, composed)
     return composed  # [B, L0], maps original pos -> final merged pos
@@ -396,9 +378,6 @@ def build_old_to_new(
     device = unm_idx.device
     tA = (L + 1) // 2
     tB = L // 2
-
-    print('src_idx: ', src_idx)
-    print('tA: ', tA)
 
     # sanity checks
     assert (src_idx >= 0).all() and (src_idx < tA).all()
@@ -520,9 +499,6 @@ class ToMeAttention(nn.Module):
             kpm = key_padding_mask[:, None, None, :]  # True = masked
             attn_logits = attn_logits.masked_fill(kpm, float("-inf"))
 
-        print('token_sizes shape: ', None if token_sizes is None else token_sizes.shape)
-        print('attn_logits shape before token sizes: ', attn_logits.shape)
-
         if token_sizes is not None:
             if token_sizes.dim() == 3:
                 token_sizes = token_sizes.squeeze(-1)  # [B,L]
@@ -532,11 +508,6 @@ class ToMeAttention(nn.Module):
 
         attn = attn_logits.softmax(dim=-1)
         out = attn @ v  # [B, H, L, d]
-
-        print('B: ', B)
-        print('L: ', L)
-        print('D: ', D)
-        print('out shape: ', out.shape)
 
         out = out.transpose(1, 2).reshape(B, L, D)
         out = self.proj(out)
@@ -623,18 +594,8 @@ class LatentEncoder(nn.Module):
         )
 
     def forward(self, x, key_padding_mask=None, token_sizes: Optional[torch.Tensor] = None):
-        # for block in self.blocks:
-        #     x, token_sizes, key_padding_mask, info = block(
-        #         x,
-        #         key_padding_mask=key_padding_mask,
-        #         token_sizes=token_sizes,
-        #         return_info=self.token_merging,
-        #     )
-        # return x
-
         num_latent_tokens_merged = 0
         latent_tokens_merge_maps = []  # store (old_to_new, L_old, L_new) per merge step
-        # print("x len before block:", x.shape[1])
         for i, block in enumerate(self.blocks):
             x, token_sizes, key_padding_mask, info = block(
                 x,
@@ -650,7 +611,6 @@ class LatentEncoder(nn.Module):
                 latent_tokens_merge_maps.append(old_to_new)
                 num_latent_tokens_merged += src_idx.shape[1]
 
-            # print("x len after block :", x.shape[1])  # if you have it
         x = self.ln(x)
         if self.token_merging:
             return (
@@ -771,26 +731,26 @@ class localDecoder(nn.Module):
         merge_maps: list = None,
     ) -> torch.Tensor:
         B, L, D = z_bar.shape
-        print('z_bar shape: ', z_bar.shape)
-        print('merge_maps: ', merge_maps)
+        # print('z_bar shape: ', z_bar.shape)
+        # print('merge_maps: ', merge_maps)
         if merge_maps is None:
             # create an identity function of size [L, L] and broadcast to B such that the resulting shape is [B, L, L]
             U = torch.eye(L, device=z_bar.device).unsqueeze(0).expand(B, L, L)  # [B, L, L]
-            print('U shape when no merging: ', U.shape)
+            # print('U shape when no merging: ', U.shape)
         else:
-            print('L: ', L)
+            # print('L: ', L)
             final_map = compose_old_to_new(merge_maps, L)  # [B, L0]
 
-            print('final_map shape: ', final_map.shape)
+            # print('final_map shape: ', final_map.shape)
 
             # convert to binary source tensor
             U = torch.nn.functional.one_hot(final_map, num_classes=L0).to(torch.float32)
             U = U.transpose(2,1)
-            print('U shape when merging: ', U.shape)
+            # print('U shape when merging: ', U.shape)
         x = U @ z_bar
 
-        print('x shape after unmerging: ', x.shape)
-        print('key_padding_mask shape after unmerging: ', None if key_padding_mask is None else key_padding_mask.shape)
+        # print('x shape after unmerging: ', x.shape)
+        # print('key_padding_mask shape after unmerging: ', None if key_padding_mask is None else key_padding_mask.shape)
 
         for block in self.blocks:
             x = block(x, key_padding_mask=key_padding_mask)
@@ -907,7 +867,6 @@ class Autoencoder:
         attention_mask: Optional[torch.Tensor] = None,
     ):
         """Forward pass. Returns logits [B, L, vocab_size]."""
-        print("In forward function")
         B, L0 = input_ids.shape
         num_tokens_merged = 0
         token_sizes_1 = None
@@ -921,8 +880,6 @@ class Autoencoder:
                 num_tokens_merged,
                 merge_maps_1,
             ) = self.localEncoder.forward(input_ids)
-            print("num tokens merged after local encoder: ", num_tokens_merged)
-            print("merge maps after local encoder: ", merge_maps_1)
         else:
             (
                 z_1,
@@ -965,42 +922,8 @@ class Autoencoder:
         attention_mask: Optional[torch.Tensor] = None,
     ):
         """Forward pass. Returns logits [B, L, vocab_size]."""
-        print("In forward no grad local encoder function")
         B, L0 = input_ids.shape
         num_tokens_merged = 0
-        token_sizes = None
-        # if self.token_merging:
-        #     with torch.no_grad():
-        #         (
-        #             z,
-        #             token_sizes,
-        #             key_padding_mask,
-        #             orig_to_cur,
-        #             num_tokens_merged,
-        #             merge_maps,
-        #         ) = self.localEncoder.forward(input_ids)
-        # else:
-        #     with torch.no_grad():
-        #         (
-        #             z,
-        #             key_padding_mask,
-        #         ) = self.localEncoder.forward(input_ids)
-
-        # if self.token_merging:
-        #     (
-        #         z,
-        #         token_sizes,
-        #         key_padding_mask,
-        #         orig_to_cur,
-        #         num_tokens_merged,
-        #         merge_maps,
-        #     ) = self.localEncoder.forward(input_ids)
-        # else:
-        #     (
-        #         z,
-        #         key_padding_mask,
-        #     ) = self.localEncoder.forward(input_ids)
-
         if self.token_merging_latent_encoder:
             assert self.token_merging, "token_sizes is required for latent encoder merging"
             (
