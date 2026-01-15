@@ -939,7 +939,7 @@ class Autoencoder:
         else:
             key_padding_mask = input_ids == ID_PAD
         logits = self.localDecoder.forward(
-            z, key_padding_mask=key_padding_mask_1, merge_maps=merge_maps, L0=L0
+            z, key_padding_mask=key_padding_mask, merge_maps=merge_maps, L0=L0
         )
         return logits, num_tokens_merged, z_1.detach(), token_sizes_1.detach(), key_padding_mask_1.detach()
 
@@ -1008,7 +1008,7 @@ class Autoencoder:
         else:
             key_padding_mask = input_ids == ID_PAD
         logits = self.localDecoder.forward(
-            z, key_padding_mask=key_padding_mask_1, merge_maps=merge_maps, L0=L0
+            z, key_padding_mask=key_padding_mask, merge_maps=merge_maps, L0=L0
         )
         return logits, num_tokens_merged
 
