@@ -925,7 +925,7 @@ class Autoencoder:
                 token_sizes,
                 key_padding_mask,
                 num_tokens_merged,
-                merge_maps,
+                merge_maps_unused,
             ) = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1, token_sizes=token_sizes_1)
         else:
             z, key_padding_mask = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1)
@@ -994,7 +994,7 @@ class Autoencoder:
                 token_sizes,
                 key_padding_mask,
                 num_tokens_merged,
-                merge_maps,
+                merge_maps_unused,
             ) = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1, token_sizes=token_sizes_1)
         else:
             z, key_padding_mask = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1)
