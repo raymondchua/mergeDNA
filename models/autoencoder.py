@@ -270,7 +270,6 @@ class localEncoder(nn.Module):
         x = self.ln(x)
 
         if self.token_merging:
-            print("merge maps: ", merge_maps)
             return (
                 x,
                 token_sizes,
@@ -905,7 +904,6 @@ class Autoencoder:
         """Forward pass. Returns logits [B, L, vocab_size]."""
         print("In forward function")
         B, L0 = input_ids.shape
-        merge_maps = None
         num_tokens_merged = 0
         token_sizes_1 = None
         merge_maps_1 = None
@@ -919,7 +917,7 @@ class Autoencoder:
                 merge_maps_1,
             ) = self.localEncoder.forward(input_ids)
             print("num tokens merged after local encoder: ", num_tokens_merged)
-            print("merge maps after local encoder: ", merge_maps)
+            print("merge maps after local encoder: ", merge_maps_1)
         else:
             (
                 z_1,
@@ -944,7 +942,7 @@ class Autoencoder:
         else:
             key_padding_mask = input_ids == ID_PAD
         logits = self.localDecoder.forward(
-            z, key_padding_mask=key_padding_mask, merge_maps=merge_maps, L0=L0
+            z, key_padding_mask=key_padding_mask, merge_maps=merge_maps_1, L0=L0
         )
         return logits, num_tokens_merged, z_1.detach(), token_sizes_1.detach(), key_padding_mask_1.detach(), merge_maps_1
 
