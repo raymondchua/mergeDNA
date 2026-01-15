@@ -149,7 +149,6 @@ class Workspace:
             logs = self.model.eval(input_x, input_attention_mask, ID_PAD)
             loss.append(logs["loss"])
             acc.append(logs["acc"])
-            break
         print(
             "eval | "
             f"epoch: {epoch} | "
@@ -188,7 +187,6 @@ class Workspace:
                 grad_norm.append(logs["grad_norm"])
                 lr.append(logs["lr"])
                 num_tokens_merged.append(logs["num_tokens_merged"])
-                break
             print(
                 "train | " 
                 f"epoch: {i} | "
