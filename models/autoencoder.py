@@ -435,16 +435,16 @@ def merge_with_sizes(
 
 
 def proportional_attention_logits(
-    attn_logits: torch.Tensor,  # [B, H, T, T]
-    s: torch.Tensor,  # [B, T, 1] or [B, T]
+    attn_logits: torch.Tensor,  # [B, H, L, L]
+    s: torch.Tensor,  # [B, L, 1] or [B, L]
 ) -> torch.Tensor:
     """
     Implements Eq. (1): softmax(QK^T/sqrt(d) + log s)
     Specifically adds log(s_k) to each key column.
     """
     if s.dim() == 3:
-        s = s.squeeze(-1)  # [B,T]
-    # broadcast to [B, 1, 1, T] to add per-key
+        s = s.squeeze(-1)  # [B,L]
+    # broadcast to [B, 1, 1, L] to add per-key
     return attn_logits + torch.log(s.clamp_min(1e-8))[:, None, None, :]
 
 
@@ -463,7 +463,7 @@ class ToMeAttention(nn.Module):
         self,
         x: torch.Tensor,
         token_sizes=None,
-        attn_mask=None,  # [T, T] or [B, T, T] or [B, H, T, T]
+        attn_mask=None,  # [L, L] or [B, L, L] or [B, H, L, L]
         key_padding_mask=None,
     ) -> torch.Tensor:
         """
@@ -505,9 +505,8 @@ class ToMeAttention(nn.Module):
             )
 
         attn = attn_logits.softmax(dim=-1)
-
-        # --- Attention output ---
         out = attn @ v  # [B, H, L, d]
+
         out = out.transpose(1, 2).reshape(B, L, D)
         out = self.proj(out)
 
@@ -593,7 +592,6 @@ class LatentEncoder(nn.Module):
 
     def forward(self, x, key_padding_mask=None, token_sizes: Optional[torch.Tensor] = None):
         for block in self.blocks:
-            # x = block(x, key_padding_mask=key_padding_mask)
             x, token_sizes, key_padding_mask, info = block(
                 x,
                 key_padding_mask=key_padding_mask,
@@ -631,7 +629,6 @@ class LatentDecoder(nn.Module):
 
     def forward(self, x, key_padding_mask=None, token_sizes: Optional[torch.Tensor] = None):
         for block in self.blocks:
-            # x = block(x, key_padding_mask=key_padding_mask)
             x, _, key_padding_mask, info = block(
                 x,
                 key_padding_mask=key_padding_mask,
@@ -654,9 +651,6 @@ class TransformerBlockLocalDecode(nn.Module):
             embedding_dim % num_heads == 0
         )  # for multi-head attention to work correctly
         self.ln1 = nn.LayerNorm(embedding_dim)
-        # self.attn = nn.MultiheadAttention(
-        #     embed_dim=embedding_dim, num_heads=num_heads, dropout=0.0, batch_first=True
-        # )
         self.attn = FlashSelfAttention(
             embedding_dim=embedding_dim,
             num_heads=num_heads,
@@ -674,16 +668,7 @@ class TransformerBlockLocalDecode(nn.Module):
     def forward(
         self, x: torch.Tensor, key_padding_mask: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
-        B, L, D = x.shape
         h = self.ln1(x)
-        # attn_out, _ = self.attn(
-        #     query=h,
-        #     key=h,
-        #     value=h,
-        #     attn_mask=attn_mask,
-        #     key_padding_mask=key_padding_mask,
-        #     need_weights=False,
-        # )
         attn_out = self.attn(h, key_padding_mask=key_padding_mask)
         x = x + attn_out
         h = self.ln2(x)
