@@ -354,6 +354,9 @@ def bipartite_soft_matching(
         Bx, Lx, D = x.shape
         assert Bx == B and Lx == L, f"Expected x shape [B={B}, L={L}, *], got {x.shape}"
 
+        print('x in merge: ', x.shape)
+        print('x: ', x)
+
         src = x[:, ::2, :]  # [B, tA, D]
         dst = x[:, 1::2, :]  # [B, tB, D]
 
