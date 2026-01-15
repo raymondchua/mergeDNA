@@ -133,7 +133,6 @@ class TransformerBlockLocalEncode(nn.Module):
             key_padding_mask: [B, L'] (if provided)
             info: (unm_idx, src_idx, dst_idx, T_old) or None
         """
-        print('x: ', x)
         B, L, D = x.shape
         if token_sizes is None:
             token_sizes = x.new_ones(B, L, L)
@@ -636,6 +635,7 @@ class LatentEncoder(nn.Module):
         for i, block in enumerate(self.blocks):
             print('latent encoder forward block ', i)
             print('x shape: ',  x.shape)
+            print('x: ', x)
             x, token_sizes, key_padding_mask, info = block(
                 x,
                 key_padding_mask=key_padding_mask,
