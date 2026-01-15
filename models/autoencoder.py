@@ -268,7 +268,9 @@ class localEncoder(nn.Module):
 
             # print("x len after block :", x.shape[1])  # if you have it
         x = self.ln(x)
+
         if self.token_merging:
+            print("merge maps: ", merge_maps)
             return (
                 x,
                 token_sizes,
