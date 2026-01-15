@@ -778,6 +778,8 @@ class localDecoder(nn.Module):
             U = torch.eye(L, device=z_bar.device).unsqueeze(0).expand(B, L, L)  # [B, L, L]
             print('U shape when no merging: ', U.shape)
         else:
+            print('L0: ', L0)
+            print('L: ', L)
             final_map = compose_old_to_new(merge_maps, L0)  # [B, L0]
 
             # convert to binary source tensor
