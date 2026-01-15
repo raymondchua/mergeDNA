@@ -169,6 +169,8 @@ class TransformerBlockLocalEncode(nn.Module):
         h = self.ln2(x)
         x = x + self.mlp(h)
 
+        print('info: ', info)
+
         if return_info:
             return x, token_sizes, key_padding_mask, info
         else:
