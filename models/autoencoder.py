@@ -158,7 +158,7 @@ class TransformerBlockLocalEncode(nn.Module):
             )
             # print('attn_out shape: ', attn_out.shape)
             # print('k_merge shape: ', k_merge.shape)
-            # print('k_merge: ', k_merge)
+            print('k_merge: ', k_merge)
             merge_fn, info = bipartite_soft_matching(
                 k_merge, r=self.r, protected=self.protected
             )
