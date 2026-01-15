@@ -307,6 +307,9 @@ def bipartite_soft_matching(
     Returns:
         merge_fn(x): merges any tensor x with shape [B, L, D] into [B, L - r, D]
     """
+    print('k shape: ', k.shape)
+    print('k: ', k)
+
     B, L, D = k.shape
     if r <= 0:
         return lambda x: x, None  # no merging
@@ -353,9 +356,6 @@ def bipartite_soft_matching(
         """
         Bx, Lx, D = x.shape
         assert Bx == B and Lx == L, f"Expected x shape [B={B}, L={L}, *], got {x.shape}"
-
-        print('x in merge: ', x.shape)
-        print('x: ', x)
 
         src = x[:, ::2, :]  # [B, tA, D]
         dst = x[:, 1::2, :]  # [B, tB, D]
