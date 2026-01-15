@@ -771,6 +771,7 @@ class localDecoder(nn.Module):
     ) -> torch.Tensor:
         B, L, D = z_bar.shape
 
+        print('merge_maps: ', merge_maps)
         if merge_maps is None:
             # create an identity function of size [L, L] and broadcast to B such that the resulting shape is [B, L, L]
             U = torch.eye(L, device=z_bar.device).unsqueeze(0).expand(B, L, L)  # [B, L, L]
