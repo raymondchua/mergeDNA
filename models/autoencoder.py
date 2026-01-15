@@ -882,7 +882,7 @@ class Autoencoder:
         if self.token_merging:
             (
                 z,
-                s,
+                token_sizes,
                 key_padding_mask,
                 orig_to_cur,
                 num_tokens_merged,
@@ -895,14 +895,16 @@ class Autoencoder:
             ) = self.localEncoder.forward(input_ids)
 
         if self.token_merging_latent_encoder:
+
+            assert self.token_merging, "token_sizes is required for latent encoder merging"
             (
                 z,
-                s,
+                token_sizes,
                 key_padding_mask,
                 orig_to_cur,
                 num_tokens_merged,
                 merge_maps,
-            ) = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
+            ) = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask, token_sizes=token_sizes)
         else:
             z, key_padding_mask = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
         z = self.latentDecoder.forward(z, key_padding_mask=key_padding_mask)
@@ -930,7 +932,7 @@ class Autoencoder:
             with torch.no_grad():
                 (
                     z,
-                    s,
+                    token_sizes,
                     key_padding_mask,
                     orig_to_cur,
                     num_tokens_merged,
@@ -944,14 +946,15 @@ class Autoencoder:
                 ) = self.localEncoder.forward(input_ids)
 
         if self.token_merging_latent_encoder:
+            assert self.token_merging, "token_sizes is required for latent encoder merging"
             (
                 z,
-                s,
+                token_sizes,
                 key_padding_mask,
                 orig_to_cur,
                 num_tokens_merged,
                 merge_maps,
-            ) = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
+            ) = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask, token_sizes=token_sizes)
         else:
             z, key_padding_mask = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
         z = self.latentDecoder.forward(z, key_padding_mask=key_padding_mask)
