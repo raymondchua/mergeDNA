@@ -631,6 +631,8 @@ class LatentEncoder(nn.Module):
         latent_tokens_merge_maps = []  # store (old_to_new, L_old, L_new) per merge step
         # print("x len before block:", x.shape[1])
         for i, block in enumerate(self.blocks):
+            print('latent encoder forward block ', i)
+            print('x shape: ',  x.shape)
             x, token_sizes, key_padding_mask, info = block(
                 x,
                 key_padding_mask=key_padding_mask,
@@ -638,6 +640,9 @@ class LatentEncoder(nn.Module):
                 return_info=True,
             )
 
+
+            print('latent encoder x shape after block: ',  x.shape)
+            print('info: ', info)
             if info is not None:
                 unm_idx, src_idx, dst_idx, L_old = info
                 old_to_new = build_old_to_new(
