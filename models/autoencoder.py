@@ -898,20 +898,21 @@ class Autoencoder:
         B, L0 = input_ids.shape
         merge_maps = None
         num_tokens_merged = 0
-        token_sizes = None
+        token_sizes_1 = None
+        key_padding_mask_1 = None
         if self.token_merging:
             (
-                z,
-                token_sizes,
-                key_padding_mask,
+                z_1,
+                token_sizes_1,
+                key_padding_mask_1,
                 orig_to_cur,
                 num_tokens_merged,
                 merge_maps,
             ) = self.localEncoder.forward(input_ids)
         else:
             (
-                z,
-                key_padding_mask,
+                z_1,
+                key_padding_mask_1,
             ) = self.localEncoder.forward(input_ids)
 
         if self.token_merging_latent_encoder:
@@ -922,9 +923,9 @@ class Autoencoder:
                 key_padding_mask,
                 num_tokens_merged,
                 merge_maps,
-            ) = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask, token_sizes=token_sizes)
+            ) = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1, token_sizes=token_sizes_1)
         else:
-            z, key_padding_mask = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
+            z, key_padding_mask = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1)
         z = self.latentDecoder.forward(z, key_padding_mask=key_padding_mask)
         # change key_padding_mask to match input shape
         if attention_mask is not None:
@@ -934,11 +935,14 @@ class Autoencoder:
         logits = self.localDecoder.forward(
             z, key_padding_mask=key_padding_mask, merge_maps=merge_maps, L0=L0
         )
-        return logits, num_tokens_merged
+        return logits, num_tokens_merged, z_1.detach(), token_sizes_1.detach(), key_padding_mask_1.detach()
 
     def forward_no_grad_local_encoder(
         self,
         input_ids: torch.Tensor,
+        z_1: torch.Tensor,
+        token_sizes_1: Optional[torch.Tensor],
+        key_padding_mask_1: torch.Tensor,
         ID_PAD: int,
         attention_mask: Optional[torch.Tensor] = None,
     ):
@@ -965,20 +969,20 @@ class Autoencoder:
         #             key_padding_mask,
         #         ) = self.localEncoder.forward(input_ids)
 
-        if self.token_merging:
-            (
-                z,
-                token_sizes,
-                key_padding_mask,
-                orig_to_cur,
-                num_tokens_merged,
-                merge_maps,
-            ) = self.localEncoder.forward(input_ids)
-        else:
-            (
-                z,
-                key_padding_mask,
-            ) = self.localEncoder.forward(input_ids)
+        # if self.token_merging:
+        #     (
+        #         z,
+        #         token_sizes,
+        #         key_padding_mask,
+        #         orig_to_cur,
+        #         num_tokens_merged,
+        #         merge_maps,
+        #     ) = self.localEncoder.forward(input_ids)
+        # else:
+        #     (
+        #         z,
+        #         key_padding_mask,
+        #     ) = self.localEncoder.forward(input_ids)
 
         if self.token_merging_latent_encoder:
             assert self.token_merging, "token_sizes is required for latent encoder merging"
@@ -988,9 +992,9 @@ class Autoencoder:
                 key_padding_mask,
                 num_tokens_merged,
                 merge_maps,
-            ) = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask, token_sizes=token_sizes)
+            ) = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1, token_sizes=token_sizes_1)
         else:
-            z, key_padding_mask = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
+            z, key_padding_mask = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1)
         z = self.latentDecoder.forward(z, key_padding_mask=key_padding_mask)
         # change key_padding_mask to match input shape
         if attention_mask is not None:
@@ -1043,9 +1047,9 @@ class Autoencoder:
 
         self.optimizer.zero_grad(set_to_none=True)
 
-        logits, num_tokens_merged = self.forward(input_ids, ID_PAD)
+        logits, num_tokens_merged, z_1, token_sizes_1, key_padding_mask_1  = self.forward(input_ids, ID_PAD)
         logits_no_grad_local_encoder, _ = self.forward_no_grad_local_encoder(
-            input_ids.clone(), ID_PAD
+            input_ids.clone(), z_1, token_sizes_1, key_padding_mask_1, ID_PAD,
         )
 
         loss = self.compute_loss_mtr(logits, target_ids, ID_PAD)
