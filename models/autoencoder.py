@@ -916,6 +916,7 @@ class Autoencoder:
                 num_tokens_merged,
                 merge_maps_1,
             ) = self.localEncoder.forward(input_ids)
+            print("num tokens merged after local encoder: ", num_tokens_merged)
             print("merge maps after local encoder: ", merge_maps)
         else:
             (
