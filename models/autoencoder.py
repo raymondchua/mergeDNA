@@ -289,6 +289,8 @@ def compose_old_to_new(maps, L0):
     )
 
     for old_to_new in maps:
+        print('old_to_new shape: ', old_to_new.shape)
+        print('composed shape before gather: ', composed.shape)
         # old_to_new maps positions of "current old length" -> "current new length"
         composed = old_to_new.gather(1, composed)
     return composed  # [B, L0], maps original pos -> final merged pos
