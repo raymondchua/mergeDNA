@@ -876,6 +876,7 @@ class Autoencoder:
         attention_mask: Optional[torch.Tensor] = None,
     ):
         """Forward pass. Returns logits [B, L, vocab_size]."""
+        print("In forward function")
         B, L0 = input_ids.shape
         merge_maps = None
         num_tokens_merged = 0
@@ -924,6 +925,7 @@ class Autoencoder:
         attention_mask: Optional[torch.Tensor] = None,
     ):
         """Forward pass. Returns logits [B, L, vocab_size]."""
+        print("In forward no grad local encoder function")
         B, L0 = input_ids.shape
         merge_maps = None
         num_tokens_merged = 0
