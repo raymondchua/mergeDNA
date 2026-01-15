@@ -242,8 +242,16 @@ class localEncoder(nn.Module):
                 return_info=True,
             )
 
+            print('local encoder forward block ', i)
+            print('x shape after block: ',  x.shape)
+            print('token_sizes shape after block: ',  token_sizes.shape)
+
             if info is not None:
                 unm_idx, src_idx, dst_idx, L_old = info
+                print('umn_idx shape: ', unm_idx.shape)
+                print('src_idx shape: ', src_idx.shape)
+                print('dst_idx shape: ', dst_idx.shape)
+                print('L_old: ', L_old)
                 old_to_new = build_old_to_new(
                     L_old, unm_idx, src_idx, dst_idx
                 )  # [B, L_old]
