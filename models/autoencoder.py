@@ -258,6 +258,8 @@ class localEncoder(nn.Module):
                 merge_maps.append(old_to_new)
                 num_tokens_merged += src_idx.shape[1]
 
+                print('num_tokens_merged so far: ', num_tokens_merged)
+
             # print("x len after block :", x.shape[1])  # if you have it
         x = self.ln(x)
         if self.token_merging:
