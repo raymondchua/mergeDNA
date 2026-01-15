@@ -507,6 +507,10 @@ class ToMeAttention(nn.Module):
         attn = attn_logits.softmax(dim=-1)
         out = attn @ v  # [B, H, L, d]
 
+        print('B: ', B)
+        print('L: ', L)
+        print('D: ', D)
+
         out = out.transpose(1, 2).reshape(B, L, D)
         out = self.proj(out)
 
@@ -576,6 +580,7 @@ class LatentEncoder(nn.Module):
     ):
         super().__init__()
         self.token_merging = token_merging
+        self.ln = nn.LayerNorm(embedding_dim)
         self.blocks = nn.ModuleList(
             [
                 TransformerBlockLocalEncode(
@@ -591,14 +596,46 @@ class LatentEncoder(nn.Module):
         )
 
     def forward(self, x, key_padding_mask=None, token_sizes: Optional[torch.Tensor] = None):
-        for block in self.blocks:
+        # for block in self.blocks:
+        #     x, token_sizes, key_padding_mask, info = block(
+        #         x,
+        #         key_padding_mask=key_padding_mask,
+        #         token_sizes=token_sizes,
+        #         return_info=self.token_merging,
+        #     )
+        # return x
+
+        num_latent_tokens_merged = 0
+        latent_tokens_merge_maps = []  # store (old_to_new, L_old, L_new) per merge step
+        # print("x len before block:", x.shape[1])
+        for i, block in enumerate(self.blocks):
             x, token_sizes, key_padding_mask, info = block(
                 x,
                 key_padding_mask=key_padding_mask,
                 token_sizes=token_sizes,
-                return_info=self.token_merging,
+                return_info=True,
             )
-        return x
+
+            if info is not None:
+                unm_idx, src_idx, dst_idx, L_old = info
+                old_to_new = build_old_to_new(
+                    L_old, unm_idx, src_idx, dst_idx
+                )  # [B, L_old]
+                latent_tokens_merge_maps.append(old_to_new)
+                num_latent_tokens_merged += src_idx.shape[1]
+
+            # print("x len after block :", x.shape[1])  # if you have it
+        x = self.ln(x)
+        if self.token_merging:
+            return (
+                x,
+                token_sizes,
+                key_padding_mask,
+                num_latent_tokens_merged,
+                latent_tokens_merge_maps,
+            )
+        else:
+            return x, key_padding_mask
 
 
 class LatentDecoder(nn.Module):
@@ -863,7 +900,7 @@ class Autoencoder:
                 merge_maps,
             ) = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
         else:
-            z = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
+            z, key_padding_mask = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
         z = self.latentDecoder.forward(z, key_padding_mask=key_padding_mask)
         # change key_padding_mask to match input shape
         if attention_mask is not None:
@@ -912,7 +949,7 @@ class Autoencoder:
                 merge_maps,
             ) = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
         else:
-            z = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
+            z, key_padding_mask = self.latentEncoder.forward(z, key_padding_mask=key_padding_mask)
         z = self.latentDecoder.forward(z, key_padding_mask=key_padding_mask)
         # change key_padding_mask to match input shape
         if attention_mask is not None:
