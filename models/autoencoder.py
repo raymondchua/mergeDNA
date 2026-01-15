@@ -1024,20 +1024,16 @@ class Autoencoder:
         self.optimizer.zero_grad(set_to_none=True)
 
         logits, num_tokens_merged = self.forward(input_ids, ID_PAD)
-        # logits_no_grad_local_encoder, _ = self.forward_no_grad_local_encoder(
-        #     input_ids.clone(), ID_PAD
-        # )
+        logits_no_grad_local_encoder, _ = self.forward_no_grad_local_encoder(
+            input_ids.clone(), ID_PAD
+        )
 
         loss = self.compute_loss_mtr(logits, target_ids, ID_PAD)
-        # loss_no_grad_local_encoder = self.compute_loss_mtr(
-        #     logits_no_grad_local_encoder, target_ids, ID_PAD
-        # )
+        loss_no_grad_local_encoder = self.compute_loss_mtr(
+            logits_no_grad_local_encoder, target_ids, ID_PAD
+        )
 
-        # total_loss = loss + self.down_weight_factor * loss_no_grad_local_encoder
-        # total_loss.backward()
-
-        total_loss = loss
-        loss_no_grad_local_encoder = loss
+        total_loss = loss + self.down_weight_factor * loss_no_grad_local_encoder
         total_loss.backward()
 
         # gradient clipping
