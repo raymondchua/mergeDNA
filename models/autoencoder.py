@@ -906,7 +906,7 @@ class Autoencoder:
         merge_maps = None
         num_tokens_merged = 0
         token_sizes_1 = None
-        key_padding_mask_1 = None
+        merge_maps_1 = None
         if self.token_merging:
             (
                 z_1,
@@ -914,8 +914,9 @@ class Autoencoder:
                 key_padding_mask_1,
                 orig_to_cur,
                 num_tokens_merged,
-                merge_maps,
+                merge_maps_1,
             ) = self.localEncoder.forward(input_ids)
+            print("merge maps after local encoder: ", merge_maps)
         else:
             (
                 z_1,
@@ -942,7 +943,7 @@ class Autoencoder:
         logits = self.localDecoder.forward(
             z, key_padding_mask=key_padding_mask, merge_maps=merge_maps, L0=L0
         )
-        return logits, num_tokens_merged, z_1.detach(), token_sizes_1.detach(), key_padding_mask_1.detach()
+        return logits, num_tokens_merged, z_1.detach(), token_sizes_1.detach(), key_padding_mask_1.detach(), merge_maps_1
 
     def forward_no_grad_local_encoder(
         self,
@@ -950,13 +951,13 @@ class Autoencoder:
         z_1: torch.Tensor,
         token_sizes_1: Optional[torch.Tensor],
         key_padding_mask_1: torch.Tensor,
+        merge_maps_1: list,
         ID_PAD: int,
         attention_mask: Optional[torch.Tensor] = None,
     ):
         """Forward pass. Returns logits [B, L, vocab_size]."""
         print("In forward no grad local encoder function")
         B, L0 = input_ids.shape
-        merge_maps = None
         num_tokens_merged = 0
         token_sizes = None
         # if self.token_merging:
@@ -1009,7 +1010,7 @@ class Autoencoder:
         else:
             key_padding_mask = input_ids == ID_PAD
         logits = self.localDecoder.forward(
-            z, key_padding_mask=key_padding_mask, merge_maps=merge_maps, L0=L0
+            z, key_padding_mask=key_padding_mask, merge_maps=merge_maps_1, L0=L0
         )
         return logits, num_tokens_merged
 
@@ -1054,9 +1055,9 @@ class Autoencoder:
 
         self.optimizer.zero_grad(set_to_none=True)
 
-        logits, num_tokens_merged, z_1, token_sizes_1, key_padding_mask_1  = self.forward(input_ids, ID_PAD)
+        logits, num_tokens_merged, z_1, token_sizes_1, key_padding_mask_1, merge_maps_1  = self.forward(input_ids, ID_PAD)
         logits_no_grad_local_encoder, _ = self.forward_no_grad_local_encoder(
-            input_ids, z_1, token_sizes_1, key_padding_mask_1, ID_PAD,
+            input_ids, z_1, token_sizes_1, key_padding_mask_1, merge_maps_1, ID_PAD,
         )
 
         loss = self.compute_loss_mtr(logits, target_ids, ID_PAD)
