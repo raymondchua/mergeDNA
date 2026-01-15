@@ -1037,6 +1037,7 @@ class Autoencoder:
         # total_loss.backward()
 
         total_loss = loss
+        loss_no_grad_local_encoder = loss
         total_loss.backward()
 
         # gradient clipping
