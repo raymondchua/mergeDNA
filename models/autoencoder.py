@@ -774,8 +774,8 @@ class localDecoder(nn.Module):
         print('merge_maps: ', merge_maps)
         if merge_maps is None:
             # create an identity function of size [L, L] and broadcast to B such that the resulting shape is [B, L, L]
-            U = torch.eye(L0, device=z_bar.device).unsqueeze(0).expand(B, L0, L0)  # [B, L, L]
-
+            U = torch.eye(L, device=z_bar.device).unsqueeze(0).expand(B, L, L)  # [B, L, L]
+            print('U shape when no merging: ', U.shape)
         else:
             final_map = compose_old_to_new(merge_maps, L0)  # [B, L0]
 
