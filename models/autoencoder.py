@@ -931,18 +931,21 @@ class Autoencoder:
                 token_sizes,
                 key_padding_mask,
                 num_tokens_merged,
-                merge_maps_unused,
+                merge_maps_latent,
             ) = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1, token_sizes=token_sizes_1)
+            merge_maps_decoder = merge_maps_latent
         else:
             z, key_padding_mask = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1)
+            merge_maps_decoder = merge_maps_1
         z = self.latentDecoder.forward(z, key_padding_mask=key_padding_mask)
         # change key_padding_mask to match input shape
         if attention_mask is not None:
             key_padding_mask = attention_mask == 0
         else:
             key_padding_mask = input_ids == ID_PAD
+
         logits = self.localDecoder.forward(
-            z, key_padding_mask=key_padding_mask, merge_maps=merge_maps_1, L0=L0
+            z, key_padding_mask=key_padding_mask, merge_maps=merge_maps_decoder, L0=L0
         )
         return logits, num_tokens_merged, z_1.detach(), token_sizes_1.detach(), key_padding_mask_1.detach(), merge_maps_1
 
@@ -1000,10 +1003,12 @@ class Autoencoder:
                 token_sizes,
                 key_padding_mask,
                 num_tokens_merged,
-                merge_maps_unused,
+                merge_maps_latent,
             ) = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1, token_sizes=token_sizes_1)
+            merge_maps_decoder = merge_maps_latent
         else:
             z, key_padding_mask = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1)
+            merge_maps_decoder = merge_maps_1
         z = self.latentDecoder.forward(z, key_padding_mask=key_padding_mask)
         # change key_padding_mask to match input shape
         if attention_mask is not None:
@@ -1011,7 +1016,7 @@ class Autoencoder:
         else:
             key_padding_mask = input_ids == ID_PAD
         logits = self.localDecoder.forward(
-            z, key_padding_mask=key_padding_mask, merge_maps=merge_maps_1, L0=L0
+            z, key_padding_mask=key_padding_mask, merge_maps=merge_maps_decoder, L0=L0
         )
         return logits, num_tokens_merged
 
