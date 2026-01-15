@@ -771,7 +771,7 @@ class localDecoder(nn.Module):
         merge_maps: list = None,
     ) -> torch.Tensor:
         B, L, D = z_bar.shape
-
+        print('z_bar shape: ', z_bar.shape)
         print('merge_maps: ', merge_maps)
         if merge_maps is None:
             # create an identity function of size [L, L] and broadcast to B such that the resulting shape is [B, L, L]
@@ -782,8 +782,10 @@ class localDecoder(nn.Module):
             print('L: ', L)
             final_map = compose_old_to_new(merge_maps, L0)  # [B, L0]
 
+            print('final_map shape: ', final_map.shape)
+
             # convert to binary source tensor
-            U = torch.nn.functional.one_hot(final_map, num_classes=L).to(torch.float32)
+            U = torch.nn.functional.one_hot(final_map, num_classes=L0).to(torch.float32)
         x = U @ z_bar
 
         print('x shape after unmerging: ', x.shape)
