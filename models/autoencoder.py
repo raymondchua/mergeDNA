@@ -1045,7 +1045,7 @@ class Autoencoder:
 
         self.optimizer.zero_grad(set_to_none=True)
 
-        logits, num_tokens_merged, _, _, _ = self.forward(input_ids, ID_PAD)
+        logits, num_tokens_merged, _, _, _, _ = self.forward(input_ids, ID_PAD)
         loss = self.compute_loss_mtr(logits, target_ids, ID_PAD)
 
         pred = logits.argmax(dim=-1)
