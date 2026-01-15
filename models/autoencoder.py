@@ -158,6 +158,7 @@ class TransformerBlockLocalEncode(nn.Module):
             )
             print('attn_out shape: ', attn_out.shape)
             print('k_merge shape: ', k_merge.shape)
+            print('k_merge: ', k_merge)
             merge_fn, info = bipartite_soft_matching(
                 k_merge, r=self.r, protected=self.protected
             )
@@ -347,10 +348,6 @@ def bipartite_soft_matching(
 
     # Sort unmerged A indices so token order is stable-ish (CLS returns to front)
     unm_idx, _ = unm_idx.sort(dim=-1)
-
-    print('src_idx: ', src_idx)
-    print('dst_idx: ', dst_idx)
-    print('unm_idx: ', unm_idx)
 
     def merge_fn(x: torch.Tensor) -> torch.Tensor:
         """
