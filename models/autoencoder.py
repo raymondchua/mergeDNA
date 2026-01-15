@@ -387,6 +387,9 @@ def build_old_to_new(
     tA = (L + 1) // 2
     tB = L // 2
 
+    print('src_idx: ', src_idx)
+    print('tA: ', tA)
+
     # sanity checks
     assert (src_idx >= 0).all() and (src_idx < tA).all()
     assert (unm_idx >= 0).all() and (unm_idx < tA).all()
