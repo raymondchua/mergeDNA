@@ -510,6 +510,7 @@ class ToMeAttention(nn.Module):
         print('B: ', B)
         print('L: ', L)
         print('D: ', D)
+        print('out shape: ', out.shape)
 
         out = out.transpose(1, 2).reshape(B, L, D)
         out = self.proj(out)
