@@ -787,7 +787,7 @@ class localDecoder(nn.Module):
             # convert to binary source tensor
             U = torch.nn.functional.one_hot(final_map, num_classes=L0).to(torch.float32)
             print('U shape when merging: ', U.shape)
-        x = U @ z_bar
+        x = U.transpose(2,1) @ z_bar
 
         print('x shape after unmerging: ', x.shape)
         print('key_padding_mask shape after unmerging: ', None if key_padding_mask is None else key_padding_mask.shape)
