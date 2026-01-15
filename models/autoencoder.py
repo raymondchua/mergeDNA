@@ -149,6 +149,7 @@ class TransformerBlockLocalEncode(nn.Module):
 
         info = None
 
+        print('h: ', h)
         if self.token_merging:
             attn_out, k_merge = self.attn(
                 h,
