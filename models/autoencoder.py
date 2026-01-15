@@ -133,6 +133,7 @@ class TransformerBlockLocalEncode(nn.Module):
             key_padding_mask: [B, L'] (if provided)
             info: (unm_idx, src_idx, dst_idx, T_old) or None
         """
+        print('x: ', x)
         B, L, D = x.shape
         if token_sizes is None:
             token_sizes = x.new_ones(B, L, L)
@@ -149,7 +150,7 @@ class TransformerBlockLocalEncode(nn.Module):
 
         info = None
 
-        print('h: ', h)
+
         if self.token_merging:
             attn_out, k_merge = self.attn(
                 h,
