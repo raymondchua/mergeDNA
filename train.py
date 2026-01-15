@@ -77,7 +77,12 @@ class Workspace:
         else:
             wandb.init(mode="disabled")
 
-        self.dataset = load_dataset("katarinagresova/Genomic_Benchmarks_human_nontata_promoters")
+        # check if data_dir exists
+        data_dir_path = Path(self.cfg.data_dir)
+        if not data_dir_path.exists():
+            self.dataset = load_dataset("katarinagresova/Genomic_Benchmarks_human_nontata_promoters")
+        else:
+            self.dataset = load_dataset(self.cfg.data_dir)
         self.train_dset = self.dataset["train"]
         self.ds_train = self.train_dset.with_format("torch")
 

@@ -14,6 +14,7 @@ batch_size: ${models.batch_size}
 wandb_mode: offline
 work_dir: ./
 experiment: train_eval
+data_dir: ./dataset/huggingface/hub/datasets--katarinagresova--Genomic_Benchmarks_human_nontata_promoters
 
 lr: 1e-4
 
