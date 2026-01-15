@@ -307,8 +307,6 @@ def bipartite_soft_matching(
     Returns:
         merge_fn(x): merges any tensor x with shape [B, L, D] into [B, L - r, D]
     """
-    print('k shape: ', k.shape)
-    print('k: ', k)
 
     B, L, D = k.shape
     if r <= 0:
@@ -349,6 +347,10 @@ def bipartite_soft_matching(
 
     # Sort unmerged A indices so token order is stable-ish (CLS returns to front)
     unm_idx, _ = unm_idx.sort(dim=-1)
+
+    print('src_idx: ', src_idx)
+    print('dst_idx: ', dst_idx)
+    print('unm_idx: ', unm_idx)
 
     def merge_fn(x: torch.Tensor) -> torch.Tensor:
         """
