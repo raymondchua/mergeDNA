@@ -156,9 +156,12 @@ class TransformerBlockLocalEncode(nn.Module):
                 key_padding_mask=key_padding_mask,
                 attn_mask=attn_mask,
             )
+            print('attn_out shape: ', attn_out.shape)
+            print('k_merge shape: ', k_merge.shape)
             merge_fn, info = bipartite_soft_matching(
                 k_merge, r=self.r, protected=self.protected
             )
+            print('info: ', info)
             x, token_sizes = merge_with_sizes(x + attn_out, token_sizes, merge_fn)
 
             key_padding_mask = merge_key_padding_mask(key_padding_mask, merge_fn)
@@ -168,8 +171,6 @@ class TransformerBlockLocalEncode(nn.Module):
             x = x + attn_out
         h = self.ln2(x)
         x = x + self.mlp(h)
-
-        print('info: ', info)
 
         if return_info:
             return x, token_sizes, key_padding_mask, info
