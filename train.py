@@ -88,8 +88,6 @@ class Workspace:
 
         self.val_dset = self.dataset["test"]
         self.ds_val = self.val_dset.with_format("torch")
-
-
         print("OK")
 
 
