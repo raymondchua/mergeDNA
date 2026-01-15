@@ -785,7 +785,7 @@ class localDecoder(nn.Module):
             print('final_map shape: ', final_map.shape)
 
             # convert to binary source tensor
-            U = torch.nn.functional.one_hot(final_map, num_classes=L).to(torch.float32)
+            U = torch.nn.functional.one_hot(final_map, num_classes=L0).to(torch.float32)
             print('U shape when merging: ', U.shape)
         x = U @ z_bar
 
