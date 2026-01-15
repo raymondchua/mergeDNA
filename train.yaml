@@ -1,0 +1,32 @@
+defaults:
+  - models: autoencoder
+  - _self_ # this yaml file is overriding configs from the Defaults List (eg. {agent}.yaml)
+  - resources: null
+
+device: cpu
+use_wandb: false
+wandb_dir: ./wandb
+warmup_iterations: 10_000
+training_iterations: 100_000
+max_len: 256 # found through analysing the dataset. Find a way to automate this value
+seed: 1
+batch_size: ${models.batch_size}
+wandb_mode: offline
+work_dir: ./
+
+lr: 1e-4
+
+hydra:
+  run:
+    dir: ./exp_local/${now:%Y.%m.%d}/${now:%H%M%S}_${models.name}
+  sweep:
+    dir: ./exp_sweep/${now:%Y.%m.%d}/${now:%H%M}_${models.name}_${experiment}
+    subdir: ${hydra.job.num}
+  launcher:
+    timeout_min: 4300
+    cpus_per_task: 10
+    gpus_per_node: 1
+    tasks_per_node: 1
+    mem_gb: 160
+    nodes: 1
+    submitit_folder: ./exp_sweep/${now:%Y.%m.%d}/${now:%H%M}_${models.name}_${experiment}/.slurm

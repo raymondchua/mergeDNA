@@ -1,0 +1,3 @@
+- models.token_merging=true
+- models.r=8
+- models.token_merging_latent_encoder=false

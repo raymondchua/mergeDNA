@@ -1,0 +1,26 @@
+# @package models
+_target_: models.autoencoder.Autoencoder
+name: autoencoder
+batch_size: 256
+block_num_local_encoder: 4
+block_num_local_decoder: 2
+block_num_latent_encoder: 20
+block_num_latent_decoder: 4
+device: ${device}
+downsize: 2
+embedding_dim: 64
+grad_clipping: 1.0
+lr: ${lr}
+max_len: ???  # for dna bp dataset
+mlp_ratio: 4.0
+training_iterations: ${training_iterations}
+num_heads: 4
+warmup_iterations: ${warmup_iterations}
+use_wandb: ${use_wandb}
+window_size: 64
+vocab_size: ???
+n_layers: 4 # shallow network for now
+r: 8 # merging top r similar tokens
+token_merging: false
+token_merging_latent_encoder: false
+down_weight_factor: 0.25

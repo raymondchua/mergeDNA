@@ -1,0 +1,35 @@
+models:
+  _target_: models.autoencoder.Autoencoder
+  name: autoencoder
+  batch_size: 1
+  block_num_local_encoder: 4
+  block_num_local_decoder: 2
+  block_num_latent_encoder: 20
+  block_num_latent_decoder: 4
+  device: ${device}
+  downsize: 2
+  embedding_dim: 64
+  grad_clipping: 1.0
+  lr: ${lr}
+  max_len: ???
+  mlp_ratio: 4.0
+  training_iterations: ${training_iterations}
+  num_heads: 4
+  warmup_iterations: ${warmup_iterations}
+  use_wandb: ${use_wandb}
+  window_size: 64
+  vocab_size: ???
+  n_layers: 4
+  r: 8
+  token_merging: true
+device: cpu
+use_wandb: false
+wandb_dir: ./wandb
+warmup_iterations: 10000
+training_iterations: 100000
+max_len: 256
+seed: 1
+batch_size: ${models.batch_size}
+wandb_mode: offline
+work_dir: ./
+lr: 0.0001
