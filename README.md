@@ -43,7 +43,7 @@ To run training locally using Hydra with the Submitit launcher:
 
 ```bash
 python train.py hydra/launcher=submitit_local
-
+```
 ## References
 
 If you use or build upon this code, please consider citing the original MergeDNA paper:
