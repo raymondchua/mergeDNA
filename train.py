@@ -86,6 +86,9 @@ class Workspace:
         self.train_dset = self.dataset["train"]
         self.ds_train = self.train_dset.with_format("torch")
 
+        self.val_dset = self.dataset["test"]
+        self.ds_val = self.val_dset.with_format("torch")
+
 
         print("OK")
 
@@ -134,7 +137,7 @@ class Workspace:
         return "".join(tokens)
 
     def eval(self, epoch: int = 0):
-        dataloader_eval = DataLoader(self.ds_train, batch_size=self.cfg.batch_size, shuffle=False)
+        dataloader_eval = DataLoader(self.ds_val, batch_size=self.cfg.batch_size, shuffle=False)
         loss, acc= [], [],
         for idx, batch in enumerate(dataloader_eval):
             input_x = []
