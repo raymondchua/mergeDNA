@@ -879,6 +879,7 @@ class Autoencoder:
         B, L0 = input_ids.shape
         merge_maps = None
         num_tokens_merged = 0
+        token_sizes = None
         if self.token_merging:
             (
                 z,
@@ -895,7 +896,6 @@ class Autoencoder:
             ) = self.localEncoder.forward(input_ids)
 
         if self.token_merging_latent_encoder:
-
             assert self.token_merging, "token_sizes is required for latent encoder merging"
             (
                 z,
