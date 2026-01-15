@@ -497,6 +497,9 @@ class ToMeAttention(nn.Module):
             kpm = key_padding_mask[:, None, None, :]  # True = masked
             attn_logits = attn_logits.masked_fill(kpm, float("-inf"))
 
+        print('token_sizes shape: ', None if token_sizes is None else token_sizes.shape)
+        print('attn_logits shape before token sizes: ', attn_logits.shape)
+
         if token_sizes is not None:
             if token_sizes.dim() == 3:
                 token_sizes = token_sizes.squeeze(-1)  # [B,L]
