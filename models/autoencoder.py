@@ -282,9 +282,10 @@ class localEncoder(nn.Module):
             return x, key_padding_mask
 
 
-def compose_old_to_new(maps, L0):
+def compose_old_to_new(maps):
     # maps: list of old_to_new tensors from early->late
     # Start with identity mapping for original positions
+    B, L0 = maps[0].shape
     composed = torch.arange(L0, device=maps[0].device)[None, :].expand(
         maps[0].size(0), L0
     )
@@ -778,9 +779,8 @@ class localDecoder(nn.Module):
             U = torch.eye(L, device=z_bar.device).unsqueeze(0).expand(B, L, L)  # [B, L, L]
             print('U shape when no merging: ', U.shape)
         else:
-            print('L0: ', L0)
             print('L: ', L)
-            final_map = compose_old_to_new(merge_maps, L0)  # [B, L0]
+            final_map = compose_old_to_new(merge_maps)  # [B, L0]
 
             print('final_map shape: ', final_map.shape)
 
