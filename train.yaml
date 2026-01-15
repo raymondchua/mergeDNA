@@ -13,6 +13,7 @@ seed: 1
 batch_size: ${models.batch_size}
 wandb_mode: offline
 work_dir: ./
+experiment: train_eval
 
 lr: 1e-4
 

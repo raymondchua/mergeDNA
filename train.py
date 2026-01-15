@@ -36,12 +36,15 @@ class Workspace:
         utils.set_seed_everywhere(cfg.seed)
         self.timer = utils.Timer()
 
+        self.max_len = self.cfg.max_len + 1  # add one for CLS token
+        self.model = make_model(self.max_len, len(VOCAB), self.cfg.models)
+
         # create logger
         if cfg.use_wandb:
             exp_name = "_".join(
                 [
                     cfg.experiment,
-                    cfg.model.name,
+                    cfg.models.name,
                     str(cfg.seed),
                 ]
             )
@@ -55,12 +58,13 @@ class Workspace:
             # log wandb_dir_str
             logging.info("wandb_dir_str: %s", wandb_dir_str)
 
+
             self._cfg_flatten = utils.dictionary_flatten(self.cfg)
 
             project_name = "mergeDNA"
             wandb.init(
                 project=project_name,
-                group=cfg.model.name,
+                group=cfg.models.name,
                 name=exp_name,
                 config=self._cfg_flatten,
                 dir=wandb_dir_str,
@@ -76,8 +80,7 @@ class Workspace:
         self.dataset = load_dataset("katarinagresova/Genomic_Benchmarks_human_nontata_promoters")
         self.train_dset = self.dataset["train"]
         self.ds_train = self.train_dset.with_format("torch")
-        self.max_len = self.cfg.max_len + 1 # add one for CLS token
-        self.model = make_model(self.max_len, len(VOCAB), self.cfg.models)
+
 
         print("OK")
 
@@ -149,6 +152,11 @@ class Workspace:
             f"acc: {np.mean(acc):.4f} | "
         )
 
+        return {
+            "eval/loss": np.mean(loss),
+            "eval/acc": np.mean(acc),
+        }
+
     def train(self):
         dataloader = DataLoader(self.ds_train, batch_size=self.cfg.batch_size, shuffle=True)
         for i in range(self.cfg.training_iterations):
@@ -187,7 +195,19 @@ class Workspace:
                 f"num_tokens_merged: {int(np.mean(num_tokens_merged))} | "
                 f"Elapsed: {self.timer.format_time(elapsed_time)} | Total: {self.timer.format_time(total_time)}"
             )
-            self.eval(i)
+            eval_logs = self.eval(i)
+            if self.cfg.use_wandb:
+                wandb_logs = {
+                    "train/total_loss": np.mean(loss),
+                    "train/loss_mtr": np.mean(loss_mtr),
+                    "train/loss_mtr_no_local_encoder": np.mean(loss_mtr_no_local_encoder),
+                    "train/acc": np.mean(acc),
+                    "train/grad_norm": np.mean(grad_norm),
+                    "train/lr": np.mean(lr),
+                    "train/num_tokens_merged": int(np.mean(num_tokens_merged)),
+                }
+                wandb_logs.update(eval_logs)
+                wandb.log(wandb_logs, step=i)
 
 
 @hydra.main(config_path=".", config_name="train", version_base=None)
