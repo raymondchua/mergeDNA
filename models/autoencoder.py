@@ -252,6 +252,7 @@ class localEncoder(nn.Module):
                 print('src_idx shape: ', src_idx.shape)
                 print('dst_idx shape: ', dst_idx.shape)
                 print('L_old: ', L_old)
+                print('src_idx: ', src_idx)
                 old_to_new = build_old_to_new(
                     L_old, unm_idx, src_idx, dst_idx
                 )  # [B, L_old]
