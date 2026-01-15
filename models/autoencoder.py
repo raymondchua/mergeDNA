@@ -633,19 +633,12 @@ class LatentEncoder(nn.Module):
         latent_tokens_merge_maps = []  # store (old_to_new, L_old, L_new) per merge step
         # print("x len before block:", x.shape[1])
         for i, block in enumerate(self.blocks):
-            print('latent encoder forward block ', i)
-            print('x shape: ',  x.shape)
-            print('x: ', x)
             x, token_sizes, key_padding_mask, info = block(
                 x,
                 key_padding_mask=key_padding_mask,
                 token_sizes=token_sizes,
                 return_info=True,
             )
-
-
-            print('latent encoder x shape after block: ',  x.shape)
-            print('info: ', info)
             if info is not None:
                 unm_idx, src_idx, dst_idx, L_old = info
                 old_to_new = build_old_to_new(
@@ -1057,7 +1050,7 @@ class Autoencoder:
 
         logits, num_tokens_merged, z_1, token_sizes_1, key_padding_mask_1  = self.forward(input_ids, ID_PAD)
         logits_no_grad_local_encoder, _ = self.forward_no_grad_local_encoder(
-            input_ids.clone(), z_1, token_sizes_1, key_padding_mask_1, ID_PAD,
+            input_ids, z_1, token_sizes_1, key_padding_mask_1, ID_PAD,
         )
 
         loss = self.compute_loss_mtr(logits, target_ids, ID_PAD)
@@ -1065,7 +1058,7 @@ class Autoencoder:
             logits_no_grad_local_encoder, target_ids, ID_PAD
         )
 
-        total_loss = loss + self.down_weight_factor * loss_no_grad_local_encoder
+        total_loss = loss + self.down_weight_factor * loss
         total_loss.backward()
 
         # gradient clipping
@@ -1073,6 +1066,7 @@ class Autoencoder:
             self.all_params, self.grad_clipping
         ).item()
         self.optimizer.step()
+
         self.step_scheduler()
 
         with torch.no_grad():
