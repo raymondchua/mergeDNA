@@ -943,22 +943,37 @@ class Autoencoder:
         merge_maps = None
         num_tokens_merged = 0
         token_sizes = None
+        # if self.token_merging:
+        #     with torch.no_grad():
+        #         (
+        #             z,
+        #             token_sizes,
+        #             key_padding_mask,
+        #             orig_to_cur,
+        #             num_tokens_merged,
+        #             merge_maps,
+        #         ) = self.localEncoder.forward(input_ids)
+        # else:
+        #     with torch.no_grad():
+        #         (
+        #             z,
+        #             key_padding_mask,
+        #         ) = self.localEncoder.forward(input_ids)
+
         if self.token_merging:
-            with torch.no_grad():
-                (
-                    z,
-                    token_sizes,
-                    key_padding_mask,
-                    orig_to_cur,
-                    num_tokens_merged,
-                    merge_maps,
-                ) = self.localEncoder.forward(input_ids)
+            (
+                z,
+                token_sizes,
+                key_padding_mask,
+                orig_to_cur,
+                num_tokens_merged,
+                merge_maps,
+            ) = self.localEncoder.forward(input_ids)
         else:
-            with torch.no_grad():
-                (
-                    z,
-                    key_padding_mask,
-                ) = self.localEncoder.forward(input_ids)
+            (
+                z,
+                key_padding_mask,
+            ) = self.localEncoder.forward(input_ids)
 
         if self.token_merging_latent_encoder:
             assert self.token_merging, "token_sizes is required for latent encoder merging"
