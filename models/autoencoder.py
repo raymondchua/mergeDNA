@@ -252,7 +252,6 @@ class localEncoder(nn.Module):
                 print('src_idx shape: ', src_idx.shape)
                 print('dst_idx shape: ', dst_idx.shape)
                 print('L_old: ', L_old)
-                print('src_idx: ', src_idx)
                 old_to_new = build_old_to_new(
                     L_old, unm_idx, src_idx, dst_idx
                 )  # [B, L_old]
@@ -943,6 +942,7 @@ class Autoencoder:
         B, L0 = input_ids.shape
         merge_maps = None
         num_tokens_merged = 0
+        token_sizes = None
         if self.token_merging:
             with torch.no_grad():
                 (
@@ -1025,7 +1025,7 @@ class Autoencoder:
 
         logits, num_tokens_merged = self.forward(input_ids, ID_PAD)
         logits_no_grad_local_encoder, _ = self.forward_no_grad_local_encoder(
-            input_ids, ID_PAD
+            input_ids.clone(), ID_PAD
         )
 
         loss = self.compute_loss_mtr(logits, target_ids, ID_PAD)
