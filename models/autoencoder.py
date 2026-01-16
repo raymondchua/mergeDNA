@@ -914,9 +914,9 @@ class Autoencoder:
     def forward_no_grad_local_encoder(
         self,
         input_ids: torch.Tensor,
-        z_1: torch.Tensor,
-        token_sizes_1: Optional[torch.Tensor],
-        key_padding_mask_1: torch.Tensor,
+        # z_1: torch.Tensor,
+        # token_sizes_1: Optional[torch.Tensor],
+        # key_padding_mask_1: torch.Tensor,
         merge_maps_1: list,
         ID_PAD: int,
         attention_mask: Optional[torch.Tensor] = None,
@@ -924,6 +924,22 @@ class Autoencoder:
         """Forward pass. Returns logits [B, L, vocab_size]."""
         B, L0 = input_ids.shape
         num_tokens_merged = 0
+        token_sizes_1 = None
+        if self.token_merging:
+            (
+                z_1,
+                token_sizes_1,
+                key_padding_mask_1,
+                orig_to_cur,
+                num_tokens_merged,
+                merge_maps_1,
+            ) = self.localEncoder.forward(input_ids)
+        else:
+            (
+                z_1,
+                key_padding_mask_1,
+            ) = self.localEncoder.forward(input_ids)
+
         if self.token_merging_latent_encoder:
             assert self.token_merging, "token_sizes is required for latent encoder merging"
             (
