@@ -792,8 +792,8 @@ class Autoencoder:
             mlp_ratio=self._mlp_ratio,
             window_size=self._window_size,
             vocab_size=self._vocab_size,
-            n_layers=self._block_num_local_encoder,
-            # n_layers=self._n_layers,
+            # n_layers=self._block_num_local_encoder,
+            n_layers=self._n_layers,
             max_len=self._max_len,
             token_merging=self.token_merging,
             r=self.r,
@@ -803,8 +803,8 @@ class Autoencoder:
             embedding_dim=self._embed_dim,
             num_heads=self._num_heads,
             mlp_ratio=self._mlp_ratio,
-            n_layers=self._block_num_latent_encoder,
-            # n_layers=self._n_layers,
+            # n_layers=self._block_num_latent_encoder,
+            n_layers=self._n_layers,
             token_merging=self.token_merging_latent_encoder,
             r=self.r,
         ).to(self.device)
@@ -813,8 +813,8 @@ class Autoencoder:
             embedding_dim=self._embed_dim,
             num_heads=self._num_heads,
             mlp_ratio=self._mlp_ratio,
-            n_layers=self._block_num_latent_decoder,
-            # n_layers=self._n_layers,
+            # n_layers=self._block_num_latent_decoder,
+            n_layers=self._n_layers,
             token_merging=False,    # never merge tokens when decoding
             r=self.r,
         ).to(self.device)
@@ -825,8 +825,8 @@ class Autoencoder:
             mlp_ratio=self._mlp_ratio,
             window_size=self._window_size,
             vocab_size=self._vocab_size,
-            n_layers=self._block_num_local_decoder,
-            # n_layers=self._n_layers,
+            # n_layers=self._block_num_local_decoder,
+            n_layers=self._n_layers,
         ).to(self.device)
 
         # combine all parameters
