@@ -783,10 +783,10 @@ class Autoencoder:
 
         self._downsize = kwargs["downsize"]  # ratio to reduce the size of the model
         # embedding_dim = 64 # mergeDNA use 1024
-        self._block_num_local_encoder = 4 // self._downsize
-        self._block_num_latent_encoder = 20 // self._downsize
-        self._block_num_latent_decoder = 4 // self._downsize
-        self._block_num_local_decoder = 2 // self._downsize
+        self._block_num_local_encoder = self._kwargs["block_num_local_encoder"] // self._downsize
+        self._block_num_latent_encoder = self._kwargs["block_num_latent_encoder"] // self._downsize
+        self._block_num_latent_decoder = self._kwargs["block_num_latent_decoder"] // self._downsize
+        self._block_num_local_decoder = self._kwargs["block_num_local_decoder"] // self._downsize
 
         self.localEncoder = localEncoder(
             embedding_dim=self._embed_dim,
