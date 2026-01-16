@@ -914,10 +914,6 @@ class Autoencoder:
     def forward_no_grad_local_encoder(
         self,
         input_ids: torch.Tensor,
-        # z_1: torch.Tensor,
-        # token_sizes_1: Optional[torch.Tensor],
-        # key_padding_mask_1: torch.Tensor,
-        # merge_maps_1: list,
         ID_PAD: int,
         attention_mask: Optional[torch.Tensor] = None,
     ):
@@ -925,6 +921,7 @@ class Autoencoder:
         B, L0 = input_ids.shape
         num_tokens_merged = 0
         token_sizes_1 = None
+        merge_maps_1 = None
         if self.token_merging:
             (
                 z_1,
@@ -948,10 +945,10 @@ class Autoencoder:
                 key_padding_mask,
                 num_tokens_merged,
                 merge_maps_latent,
-            ) = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1, token_sizes=token_sizes_1)
+            ) = self.latentEncoder.forward(z_1.detach(), key_padding_mask=key_padding_mask_1, token_sizes=token_sizes_1)
             merge_maps_decoder = merge_maps_latent
         else:
-            z, key_padding_mask = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1)
+            z, key_padding_mask = self.latentEncoder.forward(z_1.detach(), key_padding_mask=key_padding_mask_1)
             merge_maps_decoder = merge_maps_1
         z = self.latentDecoder.forward(z, key_padding_mask=key_padding_mask)
         # change key_padding_mask to match input shape
