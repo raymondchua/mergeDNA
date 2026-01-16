@@ -151,6 +151,7 @@ class TransformerBlockLocalEncode(nn.Module):
 
 
         if self.token_merging:
+            print('merging tokens in transformer block')
             attn_out, k_merge = self.attn(
                 h,
                 token_sizes=token_sizes if self.use_prop_attn else None,
