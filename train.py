@@ -150,9 +150,6 @@ class Workspace:
             logs = self.model.eval(input_x, input_attention_mask, ID_PAD)
             loss.append(logs["loss"])
             acc.append(logs["acc"])
-            if self.cfg.small_data:
-                if idx >= 10:
-                    break
         print(
             "eval | "
             f"epoch: {epoch} | "
