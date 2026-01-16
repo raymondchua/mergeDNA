@@ -868,7 +868,8 @@ class Autoencoder:
     ):
         """Forward pass. Returns logits [B, L, vocab_size]."""
         B, L0 = input_ids.shape
-        num_tokens_merged = 0
+        num_tokens_merged_local = 0
+        num_tokens_merged_latent = 0
         token_sizes_1 = None
         merge_maps_1 = None
         if self.token_merging:
@@ -877,7 +878,7 @@ class Autoencoder:
                 token_sizes_1,
                 key_padding_mask_1,
                 orig_to_cur,
-                num_tokens_merged,
+                num_tokens_merged_local,
                 merge_maps_1,
             ) = self.localEncoder.forward(input_ids)
         else:
@@ -892,7 +893,7 @@ class Autoencoder:
                 z,
                 token_sizes,
                 key_padding_mask,
-                num_tokens_merged,
+                num_tokens_merged_latent,
                 merge_maps_latent,
             ) = self.latentEncoder.forward(z_1, key_padding_mask=key_padding_mask_1, token_sizes=token_sizes_1)
             merge_maps_decoder = merge_maps_latent
@@ -909,6 +910,7 @@ class Autoencoder:
         logits = self.localDecoder.forward(
             z, key_padding_mask=key_padding_mask, merge_maps=merge_maps_decoder, L0=L0
         )
+        num_tokens_merged = num_tokens_merged_local + num_tokens_merged_latent
         return logits, num_tokens_merged, z_1.detach(), token_sizes_1, key_padding_mask_1, merge_maps_1
 
     def forward_no_grad_local_encoder(
@@ -919,16 +921,17 @@ class Autoencoder:
     ):
         """Forward pass. Returns logits [B, L, vocab_size]."""
         B, L0 = input_ids.shape
-        num_tokens_merged = 0
         token_sizes_1 = None
         merge_maps_1 = None
+        num_tokens_merged_local = 0
+        num_tokens_merged_latent = 0
         if self.token_merging:
             (
                 z_1,
                 token_sizes_1,
                 key_padding_mask_1,
                 orig_to_cur,
-                num_tokens_merged,
+                num_tokens_merged_local,
                 merge_maps_1,
             ) = self.localEncoder.forward(input_ids)
         else:
@@ -943,7 +946,7 @@ class Autoencoder:
                 z,
                 token_sizes,
                 key_padding_mask,
-                num_tokens_merged,
+                num_tokens_merged_latent,
                 merge_maps_latent,
             ) = self.latentEncoder.forward(z_1.detach(), key_padding_mask=key_padding_mask_1, token_sizes=token_sizes_1)
             merge_maps_decoder = merge_maps_latent
@@ -959,6 +962,7 @@ class Autoencoder:
         logits = self.localDecoder.forward(
             z, key_padding_mask=key_padding_mask, merge_maps=merge_maps_decoder, L0=L0
         )
+        num_tokens_merged = num_tokens_merged_local + num_tokens_merged_latent
         return logits, num_tokens_merged
 
     def compute_loss_mtr(
