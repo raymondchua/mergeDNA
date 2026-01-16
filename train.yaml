@@ -8,7 +8,7 @@ use_wandb: false
 wandb_dir: ./wandb
 warmup_iterations: 10_000
 training_iterations: 100_000
-max_len: 256 # found through analysing the dataset. Find a way to automate this value
+max_len: 300 # found through analysing the dataset. Find a way to automate this value
 seed: 1
 batch_size: ${models.batch_size}
 wandb_mode: offline
