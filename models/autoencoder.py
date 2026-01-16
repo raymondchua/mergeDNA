@@ -598,6 +598,7 @@ class LatentEncoder(nn.Module):
         num_latent_tokens_merged = 0
         latent_tokens_merge_maps = []  # store (old_to_new, L_old, L_new) per merge step
         for i, block in enumerate(self.blocks):
+            print('Latent Encoder Block ', i)
             x, token_sizes, key_padding_mask, info = block(
                 x,
                 key_padding_mask=key_padding_mask,
