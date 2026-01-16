@@ -909,7 +909,7 @@ class Autoencoder:
         logits = self.localDecoder.forward(
             z, key_padding_mask=key_padding_mask, merge_maps=merge_maps_decoder, L0=L0
         )
-        return logits, num_tokens_merged, z_1.detach(), token_sizes_1.detach(), key_padding_mask_1.detach(), merge_maps_1
+        return logits, num_tokens_merged, z_1.detach(), token_sizes_1, key_padding_mask_1, merge_maps_1
 
     def forward_no_grad_local_encoder(
         self,
