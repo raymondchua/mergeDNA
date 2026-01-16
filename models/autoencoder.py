@@ -917,7 +917,7 @@ class Autoencoder:
         # z_1: torch.Tensor,
         # token_sizes_1: Optional[torch.Tensor],
         # key_padding_mask_1: torch.Tensor,
-        merge_maps_1: list,
+        # merge_maps_1: list,
         ID_PAD: int,
         attention_mask: Optional[torch.Tensor] = None,
     ):
@@ -1007,7 +1007,7 @@ class Autoencoder:
 
         logits, num_tokens_merged, z_1, token_sizes_1, key_padding_mask_1, merge_maps_1  = self.forward(input_ids, ID_PAD)
         logits_no_grad_local_encoder, _ = self.forward_no_grad_local_encoder(
-            input_ids, z_1, token_sizes_1, key_padding_mask_1, merge_maps_1, ID_PAD,
+            input_ids, ID_PAD,
         )
 
         loss = self.compute_loss_mtr(logits, target_ids, ID_PAD)
