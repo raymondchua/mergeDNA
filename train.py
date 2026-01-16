@@ -189,8 +189,7 @@ class Workspace:
                 lr.append(logs["lr"])
                 num_tokens_merged.append(logs["num_tokens_merged"])
                 if self.cfg.small_data:
-                    if idx >= 10:
-                        break
+                    break
             print(
                 "train | " 
                 f"epoch: {i} | "
