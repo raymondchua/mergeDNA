@@ -4,7 +4,7 @@ defaults:
 hydra:
   mode: MULTIRUN
   sweep:
-    dir: /home/chuaraym/scratch/exp_sweep/${now:%Y.%m.%d}/${now:%H%M}_mergeDNA_${domain}
+    dir: /home/chuaraym/scratch/exp_sweep/${now:%Y.%m.%d}/${now:%H%M}_mergeDNA
     subdir: ${hydra.job.num}
   launcher:
     account: def-bengioy
