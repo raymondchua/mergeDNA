@@ -22,5 +22,5 @@ vocab_size: ???
 n_layers: 4 # shallow network for now
 r: 8 # merging top r similar tokens
 token_merging: true
-token_merging_latent_encoder: true
+token_merging_latent_encoder: false
 down_weight_factor: 0.25
