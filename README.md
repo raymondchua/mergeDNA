@@ -1,7 +1,7 @@
 # mergeDNA
 
 **MergeDNA** is a lightweight transformer-based autoencoder designed for modeling long DNA sequences efficiently.  
-This repository is a work-in-progress implementation of the model described in the paper:
+This repository is an implementation of the model described in the paper:
 "MergeDNA: Context-aware Genome Modeling with Dynamic Tokenization through Token Merging" by Siyuan Li et al. (arXiv:2511.14806)
 
 ## Overview
